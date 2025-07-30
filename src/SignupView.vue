@@ -17,7 +17,6 @@ const handleSignup = async () => {
       name: name.value,
     });
 
-    // Save token and UID
     localStorage.setItem('authToken', response.data.token);
     localStorage.setItem('uid', response.data.uid);
 
@@ -30,7 +29,6 @@ const handleSignup = async () => {
 </script>
 
 <template>
-  <!-- Keep the existing template (same as before) -->
   <div class="min-h-screen bg-gray-50 flex items-center justify-center">
     <div class="bg-white p-8 rounded-lg shadow-md w-80">
       <h1 class="text-2xl font-bold text-gray-800 mb-6">Sign Up</h1>
