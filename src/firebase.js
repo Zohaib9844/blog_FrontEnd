@@ -17,3 +17,4 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 export { auth, db };
+export const API_BASE_URL = import.meta.env.VITE_BACKEND_LINK;

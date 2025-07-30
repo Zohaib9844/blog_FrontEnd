@@ -12,7 +12,7 @@ const fetchUserBlogs = async () => {
   try {
     const token = localStorage.getItem('authToken');
     const uid = localStorage.getItem('uid');
-    const response = await axios.get(`http://localhost:3000/blogs/author/${uid}`, {
+    const response = await axios.get(`${import.meta.env.VITE_BACKEND_LINK}/blogs/author/${uid}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     userBlogs.value = response.data;
@@ -28,7 +28,7 @@ fetchUserBlogs();
 const deleteBlog = async (id) => {
   try {
     const token = localStorage.getItem('authToken');
-    await axios.delete(`http://localhost:3000/blogs/${id}`, {
+    await axios.delete(`${import.meta.env.VITE_BACKEND_LINK}/blogs/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     userBlogs.value = userBlogs.value.filter(blog => blog.id !== id);

@@ -3,12 +3,23 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import Navbar from '@/components/navbar.vue';
+import DOMPurify from 'dompurify'; // Add this import
 
 const router = useRouter();
+const API_BASE_URL = import.meta.env.VITE_BACKEND_LINK;
 const blogs = ref([]);
 const authorNames = ref({}); // Store author names by UID
 const isLoading = ref(true);
 const error = ref('');
+
+// Helper function to sanitize and truncate HTML
+const sanitizeAndTruncate = (html, maxLength = 100) => {
+  const sanitized = DOMPurify.sanitize(html);
+  const textOnly = sanitized.replace(/<[^>]*>/g, ' '); // Strip tags for truncation
+  return textOnly.length > maxLength 
+    ? textOnly.substring(0, maxLength) + '...' 
+    : textOnly;
+};
 
 // Fetch blogs and author names
 const fetchBlogs = async () => {
@@ -17,17 +28,18 @@ const fetchBlogs = async () => {
     error.value = '';
     
     // 1. Fetch all blogs
-    const blogsResponse = await axios.get('http://localhost:3000/blogs');
+    const blogsResponse = await axios.get(`${API_BASE_URL}/blogs`);
     blogs.value = blogsResponse.data?.map(blog => ({
       ...blog,
-      content: blog.content.substring(0, 100) + '...'
+      content: DOMPurify.sanitize(blog.content), // Sanitize full content
+      excerpt: sanitizeAndTruncate(blog.content), // Truncated plain text for summary
     })) || [];
 
     // 2. Fetch author names for all unique authors
     const uniqueAuthorIds = [...new Set(blogs.value.map(blog => blog.author))];
     await Promise.all(uniqueAuthorIds.map(async (authorId) => {
       try {
-        const userResponse = await axios.get(`http://localhost:3000/users/${authorId}`);
+        const userResponse = await axios.get(`${API_BASE_URL}/users/${authorId}`);
         authorNames.value[authorId] = userResponse.data.name;
       } catch (err) {
         console.error(`Error fetching author ${authorId}:`, err);
@@ -99,7 +111,11 @@ const handlePostBlog = () => {
           class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition"
         >
           <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ blog.title }}</h3>
-          <p class="text-gray-600 mb-4">{{ blog.content }}</p>
+          <!-- Render sanitized HTML (formatted) -->
+          <div 
+            class="prose max-w-none text-gray-600 mb-4" 
+            v-html="blog.content"
+          ></div>
           <div class="flex justify-between items-center">
             <span class="text-sm text-gray-500">
               Posted on {{ blog.date }} by {{ authorNames[blog.author] || 'Loading...' }}

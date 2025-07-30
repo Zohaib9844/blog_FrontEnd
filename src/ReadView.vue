@@ -1,8 +1,22 @@
 <script setup>
-import { ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
 import Navbar from '@/components/navbar.vue';
+import { useEditor, EditorContent } from '@tiptap/vue-3';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import BulletList from '@tiptap/extension-bullet-list';
+import OrderedList from '@tiptap/extension-ordered-list';
+import ListItem from '@tiptap/extension-list-item';
+
+// Initialize Tiptap without code-block-lowlight
+const editor = useEditor({
+  extensions: [
+    StarterKit, 
+  ],
+  content: '',
+});
 
 const route = useRoute();
 const blogId = route.params.id;
@@ -14,20 +28,16 @@ const error = ref('');
 // Fetch blog and author details
 const fetchBlog = async () => {
   try {
-    // 1. Fetch the blog
-    const blogResponse = await axios.get(`http://localhost:3000/blogs/${blogId}`);
+    const blogResponse = await axios.get(`${import.meta.env.VITE_BACKEND_LINK}/blogs/${blogId}`);
     blog.value = {
       ...blogResponse.data,
       isAuthor: blogResponse.data.author === localStorage.getItem('uid')
     };
-
-    // 2. Fetch author details from users collection
-    const userResponse = await axios.get(`http://localhost:3000/users/${blog.value.author}`);
-    authorName.value = userResponse.data.name;
     
+    const userResponse = await axios.get(`${import.meta.env.VITE_BACKEND_LINK}/users/${blog.value.author}`);
+    authorName.value = userResponse.data.name;
   } catch (err) {
-    error.value = 'Failed to load blog. Please try again.';
-    console.error('Error fetching blog:', err);
+    error.value = 'Failed to load blog.';
   } finally {
     isLoading.value = false;
   }
@@ -60,8 +70,14 @@ fetchBlog();
     <!-- Blog Content -->
     <div v-else-if="blog" class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md mt-8">
       <h1 class="text-2xl font-bold text-gray-800 mb-4">{{ blog.title }}</h1>
-      <div class="prose max-w-none text-gray-600 mb-6" v-html="blog.content"></div>
-      <div class="flex justify-between items-center">
+      
+      <!-- Render HTML content safely -->
+      <div 
+        class="prose max-w-none" 
+        v-html="blog.content"
+      ></div>
+
+      <div class="flex justify-between items-center mt-6">
         <span class="text-sm text-gray-500">
           Published on {{ blog.date }} by {{ authorName || 'Unknown Author' }}
         </span>
