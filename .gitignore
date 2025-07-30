@@ -1,0 +1,50 @@
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime data
+/dist
+/.env
+/.env.*
+!.env.example
+
+# Dependency directories
+/node_modules
+/.pnpm-store
+/.yarn/cache
+/.yarn/unplugged
+/.yarn/build-state.yml
+/.yarn/install-state.gz
+.pnp.*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Local cache
+.cache
+.temp
+
+# Vite build output
+/dist
+/out-tsc
+
+# Test coverage
+/coverage
+*.lcov
+
+# Debug files
+jsconfig.json
+*.log
+
+# Environment files
+.env.local
+.env.*.local
